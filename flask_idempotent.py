@@ -1,9 +1,11 @@
 import pickle
 import time
+import uuid
 
 import redis
 import six
 from flask import _request_ctx_stack, request, abort
+from jinja2 import Markup
 
 try:
     from uwsgi import async_sleep as sleep
@@ -34,8 +36,19 @@ class Idempotent(object):
         app.config.setdefault("IDEMPOTENT_TIMEOUT", 60)
         app.config.setdefault("IDEMPOTENT_EXPIRE", 240)
 
+        @app.context_processor
+        def template_context():
+            return {'idempotent_key': self.generate_idempotent_key,
+                    'idempotent_input': self.make_idempotent_input}
+
         app.before_request(self._before_request)
         app.after_request(self._after_request)
+
+    def generate_idempotent_key(self):
+        return uuid.uuid4().hex
+
+    def make_idempotent_input(self):
+        return Markup('<input type="hidden" name="__idempotent_key" value="%s"/>' % self.generate_idempotent_key())
 
     @property
     def redis(self):

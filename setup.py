@@ -6,10 +6,16 @@ Idempotent requests for Flask applications.
 """
 from setuptools import setup
 
+TEST_DEPS = [
+    'coverage',
+    'nose',
+    'requests',
+    'unittest2'
+]
 
 setup(
     name='Flask-Idempotent',
-    version='0.0.3',
+    version='0.0.4',
     url='http://github.com/DisruptiveLabs/flask-idempotent',
     license='MIT',
     author='Franklyn Tackitt',
@@ -24,12 +30,8 @@ setup(
         'Flask>=0.9',
         'redis'
     ],
-    tests_require=[
-        'coverage',
-        'nose',
-        'requests',
-        'unittest2'
-    ],
+    tests_require=TEST_DEPS,
+    extras_require={'tests': TEST_DEPS},
     test_suite='nose.collector',
     classifiers=[
         'Environment :: Web Environment',

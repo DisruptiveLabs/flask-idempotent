@@ -5,7 +5,7 @@ import uuid
 
 import requests
 import unittest2
-from flask import Flask
+from flask import Flask, render_template_string
 from werkzeug.serving import make_server
 
 from flask_idempotent import Idempotent
@@ -65,3 +65,13 @@ class TestIdempotent(unittest2.TestCase):
         pool = multiprocessing.pool.ThreadPool(8)
         results = pool.map(lambda idx: requests.post("http://localhost:5000").text, range(5))
         self.assertEqual(len(set(results)), 5)
+
+    def test_jinja2_env(self):
+        with app.app_context():
+            key = render_template_string("{{ idempotent_key() }}")
+            input = render_template_string("{{ idempotent_input() }}")
+
+        # This should not raise an error
+        uuid.UUID(hex=key)
+        self.assertIn('name="__idempotent_key"', input)
+        self.assertIn('type="hidden"', input)
