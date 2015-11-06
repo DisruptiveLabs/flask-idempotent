@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name='Flask-Idempotent',
-    version='0.0.2',
+    version='0.0.3',
     url='http://github.com/DisruptiveLabs/flask-idempotent',
     license='MIT',
     author='Franklyn Tackitt',

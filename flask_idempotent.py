@@ -1,7 +1,8 @@
 import pickle
 import time
-import six
+
 import redis
+import six
 from flask import _request_ctx_stack, request, abort
 
 try:
@@ -28,7 +29,11 @@ class Idempotent(object):
             self.init_app(app)
 
     def init_app(self, app):
+        self.app = app
         app.config.setdefault("REDIS_URL", "redis://")
+        app.config.setdefault("IDEMPOTENT_TIMEOUT", 60)
+        app.config.setdefault("IDEMPOTENT_EXPIRE", 240)
+
         app.before_request(self._before_request)
         app.after_request(self._after_request)
 
@@ -64,7 +69,7 @@ class Idempotent(object):
         if not key:
             return
         redis_key = 'IDEMPOTENT_{}'.format(key)
-        resp = self.redis.set(redis_key, self._PROCESSING, nx=True, ex=60)
+        resp = self.redis.set(redis_key, self._PROCESSING, nx=True, ex=self.app.config.get('IDEMPOTENT_EXPIRE'))
 
         if resp is True:
             # We are the first to get this request... Lets go ahead and run the request
@@ -79,7 +84,7 @@ class Idempotent(object):
             if res != self._PROCESSING:
                 return self._unserialize_response(res)
 
-            endtime = time.time() + 60
+            endtime = time.time() + self.app.config.get('IDEMPOTENT_TIMEOUT')
             while time.time() < endtime:
                 if channel.get_message(timeout=10):
                     break
@@ -93,6 +98,6 @@ class Idempotent(object):
         if hasattr(_request_ctx_stack.top, '__idempotent_key'):
             redis_key = 'IDEMPOTENT_{}'.format(getattr(_request_ctx_stack.top, '__idempotent_key'))
             # Save the request in redis, notify, then return
-            self.redis.set(redis_key, self._serialize_response(response))
+            self.redis.set(redis_key, self._serialize_response(response), ex=self.app.config.get('IDEMPOTENT_EXPIRE'))
             self.redis.publish(redis_key, 'complete')
         return response
