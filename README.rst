@@ -71,14 +71,15 @@ Flask-Idempotent requires Redis to function. It defaults to using redis on the l
     IDEMPOTENT_EXPIRE = 240
 
 
+
 .. |pypi| image:: https://img.shields.io/pypi/v/flask-idempotent.svg?style=flat-square&label=latest%20version
-:target: https://pypi.python.org/pypi/flask-idempotent
+    :target: https://pypi.python.org/pypi/flask-idempotent
     :alt: Latest version released on PyPi
 
 .. |coverage| image:: https://img.shields.io/coveralls/DisruptiveLabs/flask-idempotent/master.svg?style=flat-square
-:target: https://coveralls.io/r/DisruptiveLabs/flask-idempotent?branch=master
+    :target: https://coveralls.io/r/DisruptiveLabs/flask-idempotent?branch=master
     :alt: Test coverage
 
 .. |build| image:: https://img.shields.io/travis/DisruptiveLabs/flask-idempotent/master.svg?style=flat-square&label=unix%20build
-:target: http://travis-ci.org/DisruptiveLabs/flask-idempotent
+    :target: http://travis-ci.org/DisruptiveLabs/flask-idempotent
     :alt: Build status of the master branch
