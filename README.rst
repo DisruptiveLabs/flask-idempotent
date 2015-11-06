@@ -26,7 +26,7 @@ Usage
     my_app = Flask(__name__)
     Idempotent(my_app)
 
-.. code-block:: jinja2
+.. code-block:: html
 
     <form>
       {{ idempotent_input() }}
@@ -80,6 +80,6 @@ Flask-Idempotent requires Redis to function. It defaults to using redis on the l
     :target: https://coveralls.io/r/DisruptiveLabs/flask-idempotent?branch=master
     :alt: Test coverage
 
-.. |build| image:: https://img.shields.io/travis/DisruptiveLabs/flask-idempotent/master.svg?style=flat-square&label=unix%20build
-    :target: http://travis-ci.org/DisruptiveLabs/flask-idempotent
+.. |build| image:: https://img.shields.io/travis/DisruptiveLabs/flask-idempotent/master.svg?style=flat-square&label=build
+    :target: https://travis-ci.org/DisruptiveLabs/flask-idempotent
     :alt: Build status of the master branch
