@@ -1,6 +1,6 @@
 import pickle
 import time
-
+import six
 import redis
 from flask import _request_ctx_stack, request, abort
 
@@ -17,7 +17,8 @@ except ImportError:
 
 
 class Idempotent(object):
-    _PROCESSING = '__IDEMPOTENT_PROCESSING'
+    _PROCESSING = b'__IDEMPOTENT_PROCESSING' if six.PY3 else '__IDEMPOTENT_PROCESSING'
+    _redis = None
 
     def __init__(self, app=None):
         self.app = app
@@ -32,8 +33,10 @@ class Idempotent(object):
         app.after_request(self._after_request)
 
     @property
-    def _redis(self):
-        return redis.StrictRedis.from_url(self.app.config.get('REDIS_URL'))
+    def redis(self):
+        if not self._redis:
+            self._redis = redis.StrictRedis.from_url(self.app.config.get('REDIS_URL'))
+        return self._redis
 
     def _find_idempotency_key(self, request):
         for func in self._key_finders:
@@ -61,7 +64,7 @@ class Idempotent(object):
         if not key:
             return
         redis_key = 'IDEMPOTENT_{}'.format(key)
-        resp = self._redis.set(redis_key, self._PROCESSING, nx=True, ex=60)
+        resp = self.redis.set(redis_key, self._PROCESSING, nx=True, ex=60)
 
         if resp is True:
             # We are the first to get this request... Lets go ahead and run the request
@@ -69,10 +72,10 @@ class Idempotent(object):
             return  # Tell flask to continue
         elif resp is None:
             # Wait for a redis subscription notification
-            channel = self._redis.pubsub(ignore_subscribe_messages=True)
+            channel = self.redis.pubsub(ignore_subscribe_messages=True)
             channel.subscribe('IDEMPOTENT_{}'.format(key))
 
-            res = self._redis.get(redis_key)
+            res = self.redis.get(redis_key)
             if res != self._PROCESSING:
                 return self._unserialize_response(res)
 
@@ -81,7 +84,7 @@ class Idempotent(object):
                 if channel.get_message(timeout=10):
                     break
 
-            res = self._redis.get(redis_key)
+            res = self.redis.get(redis_key)
             if res == self._PROCESSING:
                 abort(408)
             return self._unserialize_response(res)
@@ -90,6 +93,6 @@ class Idempotent(object):
         if hasattr(_request_ctx_stack.top, '__idempotent_key'):
             redis_key = 'IDEMPOTENT_{}'.format(getattr(_request_ctx_stack.top, '__idempotent_key'))
             # Save the request in redis, notify, then return
-            self._redis.set(redis_key, self._serialize_response(response))
-            self._redis.publish(redis_key, 'complete')
+            self.redis.set(redis_key, self._serialize_response(response))
+            self.redis.publish(redis_key, 'complete')
         return response

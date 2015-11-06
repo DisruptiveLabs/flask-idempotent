@@ -33,7 +33,7 @@ class TestIdempotent(unittest2.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.server.shutdown()
-        cls.thread._Thread__stop()
+        cls.thread.join()
 
     def test_multiple_requests(self):
         key = uuid.uuid4().hex
@@ -65,4 +65,3 @@ class TestIdempotent(unittest2.TestCase):
         pool = multiprocessing.pool.ThreadPool(8)
         results = pool.map(lambda idx: requests.post("http://localhost:5000").text, range(5))
         self.assertEqual(len(set(results)), 5)
-       
