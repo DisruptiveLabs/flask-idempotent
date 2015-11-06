@@ -12,7 +12,7 @@ with open("README.rst") as d:
 
 setup(
     name='Flask-Idempotent',
-    version='0.0.4',
+    version='0.1.0',
     url='http://github.com/DisruptiveLabs/flask-idempotent',
     license='MIT',
     author='Franklyn Tackitt',
