@@ -5,7 +5,9 @@ python:
 services:
   - redis-server
 install:
-  - pip install --upgrade pip
+  - pip install --upgrade pip coveralls
   - pip install .[tests]
 script:
   - nosetests
+after_success:
+  - coveralls

@@ -1,9 +1,3 @@
-"""
-Flask-Idempotent
---------------
-
-Idempotent requests for Flask applications.
-"""
 from setuptools import setup
 
 TEST_DEPS = [
@@ -12,6 +6,9 @@ TEST_DEPS = [
     'requests',
     'unittest2'
 ]
+
+with open("README.rst") as d:
+    __doc__ = d.read()
 
 setup(
     name='Flask-Idempotent',
